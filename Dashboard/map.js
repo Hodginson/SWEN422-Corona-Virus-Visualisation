@@ -1,6 +1,7 @@
-var width, height, projection, path, graticule, svg, dateArray = [], currentDate = 0, playing = false;
+var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
+var deathWrold
 tooltip = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
@@ -53,15 +54,20 @@ function loadData() {
   queue()   // queue function  to load data files 
     .defer(d3.json, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/world.geojson")  // load the map data
     .defer(d3.csv, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCases.csv")  // load csv file
-    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCases.csv")
+    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/deaths.csv")
+    //.defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/New_Cases.csv")
+    //.defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/Vacinations.csv")
     .await(processData);   // once all files are loaded, call the processData function, pass the loaded objects as arguments
 }
 
-function processData(error,world,countryData) {
+function processData(error,world,countryData, deathData) {
   // function accepts any errors from the queue function as first argument, then
   // each data object in the order of chained defer() methods above
 
   var countries = world.features;  // store the path in variable
+  deathWrold = world;
+  var countriesDeaths = deathWrold.features;
+ 
   for (var i in countries) {    // for each geometry object
     countryNames.push({
       Country_Name: countries[i].properties.name, 
@@ -79,8 +85,24 @@ function processData(error,world,countryData) {
         }
         break; 
       }
+      
+      
     }
   }
+  for (var m in countriesDeaths) { 
+    for (var n in deathData) { 
+  if(countriesDeaths[m].id == deathData[n].iso_code) {   // if they match
+    for(var l in deathData[m]) {   // for each column in the a row within the CSV
+      if(l != 'name' && l != 'iso_code') {  // let's not add the name or id as props since we already have them
+        if(deathDate.indexOf(l) == -1) { 
+          deathDate.push(l);  // add new column headings to our array for later
+        }
+        countriesDeaths[m].properties[l] = Number(deathData[n][l])  // add each CSV column key/value to geometry object
+      } 
+    }
+    break; 
+  }}}
+  console.log(deathWrold)
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(world);  // let's mug the map now with our newly populated data object
 }
@@ -197,6 +219,11 @@ var slider = d3.select(".slider")
   animateMap();
 }); 
 
+var changemap = d3.select('#play')  
+    .on('click', function() {
+      drawMap(deathWrold);
+      
+    });
 
  
 
