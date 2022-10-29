@@ -53,6 +53,7 @@ function loadData() {
   queue()   // queue function  to load data files 
     .defer(d3.json, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/world.geojson")  // load the map data
     .defer(d3.csv, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCases.csv")  // load csv file
+    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCases.csv")
     .await(processData);   // once all files are loaded, call the processData function, pass the loaded objects as arguments
 }
 
@@ -172,7 +173,7 @@ function animateMap() {
   d3.select('#clock').html(dateArray[currentDate]);  // update the clock
 }
 
-window.onload = init();  // magic starts here
+window.onload = init();  
 const zoom = d3.zoom()
     .scaleExtent([1, 24])
     .on("zoom", zoomed);
