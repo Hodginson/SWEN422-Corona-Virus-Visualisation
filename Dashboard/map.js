@@ -1,7 +1,8 @@
 var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
-var deathWrold
+var deathWrold;
+var mapColour = "total cases";
 tooltip = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
@@ -128,13 +129,14 @@ function drawMap(world) {
         .duration(250)
         .style("opacity", 1);
         tooltip.html(
-        "<p><strong>" + d.properties.name+" cases to date: </strong></p> " +  d.properties[dateArray[currentDate]])
+        "<p><strong>" + d.properties.name+" " + mapColour + " to date: </strong></p> " +  d.properties[dateArray[currentDate]])
         .style("left", (d3.event.pageX + 15) + "px")
         .style("top", (d3.event.pageY - 28) + "px")})
       .on("mouseleave", function(d) {
         var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
         d3.selectAll('.country')  // select all the countries
-          .attr('fill-opacity', function(d) {
+          .attr("fill-opacity", 1)
+          .attr('fill', function(d) {
             return getColor(d.properties[dateArray[currentDate]], dataRange);  // give them an opacity value based on their current value
         });
 
@@ -147,7 +149,8 @@ function drawMap(world) {
 
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
     d3.selectAll('.country')  // select all the countries
-    .attr('fill-opacity', function(d) {
+    .attr('fill-opacity',0.8)
+    .attr('fill', function(d) {
         return getColor(d.properties[dateArray[currentDate]], dataRange);  // give them an opacity value based on their current value
     });
 }
@@ -157,17 +160,26 @@ function sequenceMap() {
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
     d3.selectAll('.country').transition()  //select all the countries and prepare for a transition to new values
       .duration(750)  // give it a smooth time period for the transition
-      .attr('fill-opacity', function(d) {
+      .attr('fill', function(d) {
         return getColor(d.properties[dateArray[currentDate]], dataRange);  // the end color value
       })
 
 }
 
 function getColor(valueIn, valuesIn) {
+  if(typeof valueIn == "undefined"){
 
+    valueIn = 0
+  };
+  if(mapColour == "total cases"){
   var color = d3.scale.sqrt() // create a linear scale
     .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
-    .range([.3,1]);   // output for opacity between .3 and 1 %
+    .range(d3.schemeReds[7]);//[.3,1]);   // output for opacity between .3 and 1 %
+  } else if(mapColour == "deaths"){
+    var color = d3.scale.sqrt() // create a linear scale
+    .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
+    .range(d3.schemeBlues[7]);//[.3,1]);   // output for opacity between .3 and 1 %
+  };
 
   return color(valueIn);  // return that number to the caller
 }
@@ -221,6 +233,7 @@ var slider = d3.select(".slider")
 
 var changemap = d3.select('#play')  
     .on('click', function() {
+      mapColour = "deaths"
       drawMap(deathWrold);
       
     });
