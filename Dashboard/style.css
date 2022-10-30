@@ -1,0 +1,76 @@
+#wrapper {
+    display: block;
+    width: 1000px;
+    /*margin: -30px auto 0;/*/
+    background-color: #222;
+    margin-top: 20px;
+}
+#map {
+    width: 1000px;
+    height: 600px;
+    position: relative;
+}
+.stroke {
+  fill: none;
+  stroke: #888;
+  stroke-width: 2px;
+}
+
+.fill {
+  fill: #fff;
+}
+
+.graticule {
+  fill: #888;
+  stroke: #777;
+  stroke-width: .5px;
+  stroke-opacity: .5;
+}
+
+.land {
+  fill: #222;
+}
+
+.boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+.country {
+   /* fill: steelblue;*/
+    stroke: white;
+}
+#play, #clock {
+    position: absolute;
+    top: 15px;
+}
+.slider {
+    left: 15px;
+}
+#clock {
+    margin-top: 0px;
+    left: 35px;
+    left: 35px;
+}
+
+.tooltip {
+position: absolute;
+padding: 7px;
+font-size: 0.9em;
+pointer-events: none;
+background: #fff;
+border: 1px solid #ccc;
+border-radius: 4px;
+
+-moz-box-shadow:    3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+-webkit-box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+box-shadow:         3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+}
+.header {
+    background-color: #888;
+    height: 50px;
+  }
+.tooltip p {
+margin: 0;
+padding: 0;
+}

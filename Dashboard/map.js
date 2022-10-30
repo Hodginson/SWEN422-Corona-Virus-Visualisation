@@ -231,7 +231,7 @@ var slider = d3.select(".slider")
   animateMap();
 }); 
 
-var changemap = d3.select('#play')  
+var changemap = d3.select('#Deaths')  
     .on('click', function() {
       mapColour = "deaths"
       drawMap(deathWrold);
