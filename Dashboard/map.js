@@ -18,6 +18,8 @@ var totalCasesLines,newCasesLines,deathsLines;
 
 var currentArray;
 
+var barSvg;
+
 const TotalCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
 const TotalCasesRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
 
@@ -168,14 +170,20 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
       break; 
   }}}
 
+
+  
+
   totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
   currentLineData = totalCasesLines;
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(World);  // let's mug the map now with our newly populated data object
   drawLine(currentLineData,"World");
-  barCases(countries);
-  console.log(World)
-  console.log(countries) 
+  barData = calcBarData(countries, currentDate);
+
+  barCases(barData);
+  // console.log(barData)
+  // console.log("countries") 
+  // console.log(barData) 
   var slider = d3.select(".slider")
   .append("input")
   .attr("type", "range")
@@ -185,8 +193,21 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   .on("input", function() {
     currentDate = this.value;
     animateMap();
+    barCases(calcBarData(countries, currentDate));
   }); 
 
+}
+
+function calcBarData(countries, cDate){
+  const barData = []
+  for(var m in countries){
+    if(typeof countries[m].properties[dateArray[cDate]] == 'undefined'){
+      countries[m].properties[dateArray[cDate]] = 0
+    }
+    tempData = {name: countries[m].properties["name"], score: countries[m].properties[dateArray[cDate]]}
+    barData.push(tempData)
+  }
+  return barData
 }
 
 /*##########################################
@@ -367,36 +388,28 @@ function zoomed() {
 Bar Graph - Michael
 ##########################################*/
 
-function barCases(baseData){
-  const data = []
-    for(var m in baseData){
-      // if(m < 10){
-        if(typeof baseData[m].properties[dateArray[currentDate]] == 'undefined'){
-          baseData[m].properties[dateArray[currentDate]] = 0
-        }
-        tempData = {name: baseData[m].properties["name"], score: baseData[m].properties[dateArray[currentDate]]}
-        data.push(tempData)
-      // }
-    }
+function barCases(barData){
+  
+  // console.log(barData)
 
   scores = []
-  for(var i in data){
-      scores.push(data[i].score)
+  for(var i in barData){
+      scores.push(barData[i].score)
   }
   maxScore = d3.max(scores)
   
   width = 800
-  nbars = data.length
+  nbars = barData.length
   margin = ({top: 50, right: 20, bottom: 70, left: 250})
   height = (nbars * 28) + margin.top
   range = d3.range(28, (nbars+1) * 28, 28)
   // colors = ["#596F7E", "#168B98", "#ED5B67", "#fd8f24","#919c4c"]
   bigFormat = d3.format(",.0f")
   arc = (r, sign) => r ? `a${r * sign[0]},${r * sign[1]} 0 0 1 ${r * sign[2]},${r * sign[3]}` : ""
-  data.sort((a, b) => d3.descending(a.score, b.score))
+  barData.sort((a, b) => d3.descending(a.score, b.score))
   
   scaleY = d3.scaleOrdinal()
-        .domain(data.map(d => d.name))
+        .domain(barData.map(d => d.name))
         .range(range);
   
   // console.log(data[0].score)
@@ -422,87 +435,94 @@ function barCases(baseData){
   
   
   function roundedRect(x, y, width, height, r) {
-      r = [Math.min(r[0], height, width),
-          Math.min(r[1], height, width),
-          Math.min(r[2], height, width),
-          Math.min(r[3], height, width)];
-  
-      return `M${x + r[0]},${y
-      }h${width - r[0] - r[1]}${arc(r[1], [1, 1, 1, 1])
-      }v${height - r[1] - r[2]}${arc(r[2], [1, 1, -1, 1])
-      }h${-width + r[2] + r[3]}${arc(r[3], [1, 1, -1, -1])
-      }v${-height + r[3] + r[0]}${arc(r[0], [1, 1, 1, -1])
-      }z`;
+    r = [Math.min(r[0], height, width),
+        Math.min(r[1], height, width),
+        Math.min(r[2], height, width),
+        Math.min(r[3], height, width)];
+
+    return `M${x + r[0]},${y
+    }h${width - r[0] - r[1]}${arc(r[1], [1, 1, 1, 1])
+    }v${height - r[1] - r[2]}${arc(r[2], [1, 1, -1, 1])
+    }h${-width + r[2] + r[3]}${arc(r[3], [1, 1, -1, -1])
+    }v${-height + r[3] + r[0]}${arc(r[0], [1, 1, 1, -1])
+    }z`;
   }
   
   
   function make_x_gridlines() {		
-      return d3.axisBottom(scaleX)
-          .ticks(3)
+    return d3.axisBottom(scaleX)
+        .ticks(3)
   };
   
   
-  const svg = d3.select("#barCases").append("svg")
-      .attr("width", width)
-      .attr("height", height);
+  if(!barSvg){
+    barSvg = d3.select("#barCases").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+  }
+  //  barSvg = d3.select("#barCases").append("svg")
+  //   .attr("width", width)
+  //   .attr("height", height);
     
-  svg
-      .append("rect")
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .style("fill", "#ccc");
+  barSvg
+    .append("rect")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .style("fill", "#ccc");
   
   const barwidth = 25
   const corner = Math.floor((barwidth/2) + 5)
   //bars
-  svg.append("g")
-      .selectAll("path")
-      .data(data)
-      .enter()
-      .append("path")
-      .attr("fill", "#596F7E")
-      .attr("d", (d, i) => roundedRect(
-      scaleX(0),
-      (i * 28) + margin.top,
-      1,
-      barwidth,
-      [0, 0, corner, 0]
-      ))
-      .transition().duration(1000)
-      .attr("d", (d, i) => roundedRect(
-      scaleX(0),
-      (i * 28) + margin.top,
-      scaleX(d.score) - scaleX(0),
-      barwidth,
-      [0, 0, corner, 0]
-      ));
+  barSvg.append("g")
+    .selectAll("path")
+    .data(barData)
+    .enter()
+    .append("path")
+    .attr("fill", "#596F7E")
+    .attr("d", (d, i) => roundedRect(
+    scaleX(0),
+    (i * 28) + margin.top,
+    1,
+    barwidth,
+    [0, 0, corner, 0]
+    ))
+    .transition().duration(1000)
+    .attr("d", (d, i) => roundedRect(
+    scaleX(0),
+    (i * 28) + margin.top,
+    scaleX(d.score) - scaleX(0),
+    barwidth,
+    [0, 0, corner, 0]
+    ));
   
   //x axis
-  svg.append("g")
-      .call(xAxis)
-      .style("font-size", "14px");
+  barSvg.append("g")
+    .call(xAxis)
+    .style("font-size", "14px");
   //y axis
-  svg.append("g")
-      .call(yAxis)
-      .style("font-size", "14px");
+  barSvg.append("g")
+    .call(yAxis)
+    .style("font-size", "14px")
+  .selectAll("text")
+    .attr("transform", "rotate(-10)");
   
-  svg.append("g")			
-      .attr("class", "grid")
-      .attr("transform", "translate(0," + (height - margin.bottom) + ")")
-      .attr("stroke-opacity", 0.1)
-      .call(make_x_gridlines()
-          .tickSize(-height+margin.top+margin.bottom)
-          .tickFormat("")
-      )
-  
-  svg.append("line")
-  .attr("x1", margin.left)
-  .attr("x2", margin.left)
-  .attr("y1", margin.top - 6)
-  .attr("y2", height)
-  .attr("stroke-width", "2px")
-  .style("stroke", "black")
-  .style("opacity", 1);
+  barSvg.append("g")			
+    .attr("class", "grid")
+    .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+    .attr("stroke-opacity", 0.1)
+    .call(make_x_gridlines()
+        .tickSize(-height+margin.top+margin.bottom)
+        .tickFormat("")
+    )
+
+  barSvg.append("line")
+    .attr("x1", margin.left)
+    .attr("x2", margin.left)
+    .attr("y1", margin.top - 6)
+    .attr("y2", height)
+    .attr("stroke-width", "2px")
+    .style("stroke", "black")
+    .style("opacity", 1);
 }
 
 
