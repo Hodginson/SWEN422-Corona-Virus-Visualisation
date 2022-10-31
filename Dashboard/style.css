@@ -2,13 +2,20 @@
     display: block;
     width: 1000px;
     /*margin: -30px auto 0;/*/
-    background-color: #222;
+    background-color: #ccc;
     margin-top: 20px;
 }
 #map {
     width: 1000px;
     height: 600px;
     position: relative;
+}
+#line {
+  margin-left: 20px;
+  width: 1000px;
+  height: 800px;
+  position: relative;
+  background-color: aqua;
 }
 .stroke {
   fill: none;
