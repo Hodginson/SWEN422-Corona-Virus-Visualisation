@@ -5,7 +5,11 @@ Line Chart help:
 https://d3-graph-gallery.com/graph/line_basic.html
 https://www.d3-graph-gallery.com/graph/line_cursor.html 
 http://bl.ocks.org/lamchau/405f2d69fb3c80ad724a
+
+Bar Chart help:
+https://observablehq.com/@will-r-chase/scrollable-bar-chart
 */
+
 
 //Global variables
 var mapWidth, mapHeight, width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], newCaseDate=[],currentDate = 0, playing = false;
@@ -58,7 +62,7 @@ var LineSvg = d3.select("#line")
     .attr("transform",
           "translate(" + lineMargin.left + "," + lineMargin.top + ")");
 
-
+d3.select('#Total').style('background-color',"green");
 
 //Tooltip for hovering in the map
 tooltip = d3.select("body").append("div")
@@ -212,8 +216,8 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
 }
 
 function calcBarData(input, cDate){
-  console.log(input)
-  console.log(cDate)
+  // console.log(input)
+  // console.log(cDate)
   const barData = []
   for(var m in input){
     if(typeof input[m].properties[dateArray[cDate]] == 'undefined'){
@@ -276,7 +280,7 @@ function drawMap(world) {
             break;
           }
         };
-        console.log(filter)
+        // console.log(filter)
         LineSvg.selectAll("path").remove();
         LineSvg.selectAll("g").remove();
         LineSvg.selectAll("text").remove();
@@ -417,7 +421,6 @@ function barCases(barData, selectedCountry){
   margin = ({top: 50, right: 20, bottom: 70, left: 250})
   height = (nbars * 28) + margin.top
   range = d3.range(28, (nbars+1) * 28, 28)
-  // colors = ["#596F7E", "#168B98", "#ED5B67", "#fd8f24","#919c4c"]
   bigFormat = d3.format(",.0f")
   arc = (r, sign) => r ? `a${r * sign[0]},${r * sign[1]} 0 0 1 ${r * sign[2]},${r * sign[3]}` : ""
   barData.sort((a, b) => d3.descending(a.score, b.score))
@@ -426,15 +429,11 @@ function barCases(barData, selectedCountry){
         .domain(barData.map(d => d.name))
         .range(range);
   
-  // console.log(data[0].score)
   
   scaleX = d3.scaleLinear()
       .domain([0, maxScore])
       .range([margin.left, width - margin.right]);
-  
-  // colorScale = d3.scaleOrdinal()
-  //     .domain(d3.map(freedom_year, d => d.region_simple).keys())
-  //     .range(colors);
+
   
   xAxis = g => g
       .attr("transform", `translate(0, ${margin.top})`)
@@ -445,7 +444,6 @@ function barCases(barData, selectedCountry){
       .attr("transform", `translate(${margin.left}, ${margin.top - 15})`)
       .call(d3.axisLeft(scaleY).tickSizeOuter(0))
       .call(g => g.select(".domain").remove());
-  
   
   
   function roundedRect(x, y, width, height, r) {
@@ -474,9 +472,6 @@ function barCases(barData, selectedCountry){
     .attr("width", width)
     .attr("height", height);
   }
-  //  barSvg = d3.select("#barCases").append("svg")
-  //   .attr("width", width)
-  //   .attr("height", height);
     
   barSvg
     .append("rect")
@@ -499,7 +494,18 @@ function barCases(barData, selectedCountry){
         }
       }
       return getColor(d.score, dataRange);  // the end color value
-    })//barColour)
+    })
+    .on("mouseover", function(d) {
+      tooltip.transition()
+        .duration(250)
+        .style("opacity", 1);
+      tooltip.html(d.score.toLocaleString())
+        .style("left", (d3.event.pageX + 15) + "px")
+        .style("top", (d3.event.pageY - 28) + "px")
+    }).on("mouseleave", function(d) {
+      tooltip.transition()
+      .style("opacity", 0);
+    })
     .attr("d", (d, i) => roundedRect(
     scaleX(0),
     (i * 28) + margin.top,
@@ -507,7 +513,7 @@ function barCases(barData, selectedCountry){
     barwidth,
     [0, 0, corner, 0]
     ))
-    .transition().duration(1000)
+    .transition().duration(0)
     .attr("d", (d, i) => roundedRect(
     scaleX(0),
     (i * 28) + margin.top,
@@ -551,7 +557,7 @@ function barCases(barData, selectedCountry){
 Line Graph
 ##########################################*/
     function drawLine(data,filter,countryName) {
-      console.log(filter)
+      // console.log(filter)
       // Add X axis --> it is a date format
       var x = d3.scaleTime()
         .domain(d3.extent(data, function(d) { return d3.timeParse("%d/%m/%Y")(d.Date); }))
@@ -654,7 +660,7 @@ Line Graph
 
     var deathButton = d3.select('#Deaths')  
     .on('click', function() {
-      d3.select('#Deaths').style('background-color',"green");
+      d3.select('#Deaths').style('background-color',"indianred");
       d3.select('#New').style('background-color',"rgb(109, 103, 103)");
       d3.select('#Total').style('background-color',"rgb(109, 103, 103)");
       mapColour = "deaths"
@@ -677,7 +683,7 @@ Line Graph
 
     var newCasesButton = d3.select('#New')  
     .on('click', function() {
-      d3.select('#New').style('background-color',"green");
+      d3.select('#New').style('background-color',"steelblue");
       d3.select('#Deaths').style('background-color',"rgb(109, 103, 103)");
       d3.select('#Total').style('background-color',"rgb(109, 103, 103)");
       mapColour = "new cases";
