@@ -19,6 +19,8 @@ var totalCasesLines,newCasesLines,deathsLines;
 var currentArray;
 
 var barSvg;
+var barBaseData;
+var barColour = "green";
 
 //setup the color ranges and scale for the legend to allow for easy swapping 
 const TotalCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
@@ -35,7 +37,7 @@ var colors = TotalCasesColour;
 var ranges = TotalCasesRange;
 
 //Setup the Line SVG
-var lineColour = "steelblue",
+var lineColour = "green",
 lineText = "Total Cases: ";
 // set the dimensions and margins of the graph
 var lineMargin = {top: 10, right: 30, bottom: 30, left: 80},
@@ -158,7 +160,8 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(World);  // let's mug the map now with our newly populated data object
   drawLine(currentLineData,"World");
-  barData = calcBarData(countries, currentDate);
+  barBaseData = countries;
+  barData = calcBarData(barBaseData, currentDate);
 
   barCases(barData);
   // console.log(barData)
@@ -173,7 +176,7 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   .on("input", function() {
     currentDate = this.value;
     animateMap();
-    barCases(calcBarData(countries, currentDate));
+    barCases(calcBarData(barBaseData, currentDate));
   }); 
 
   for (var m in countriesDeaths) { 
@@ -206,13 +209,15 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
 
 }
 
-function calcBarData(countries, cDate){
+function calcBarData(input, cDate){
+  console.log(input)
+  console.log(cDate)
   const barData = []
-  for(var m in countries){
-    if(typeof countries[m].properties[dateArray[cDate]] == 'undefined'){
-      countries[m].properties[dateArray[cDate]] = 0
+  for(var m in input){
+    if(typeof input[m].properties[dateArray[cDate]] == 'undefined'){
+      input[m].properties[dateArray[cDate]] = 0
     }
-    tempData = {name: countries[m].properties["name"], score: countries[m].properties[dateArray[cDate]]}
+    tempData = {name: input[m].properties["name"], score: input[m].properties[dateArray[cDate]]}
     barData.push(tempData)
   }
   return barData
@@ -482,7 +487,7 @@ function barCases(barData){
     .data(barData)
     .enter()
     .append("path")
-    .attr("fill", "#596F7E")
+    .attr("fill", barColour)
     .attr("d", (d, i) => roundedRect(
     scaleX(0),
     (i * 28) + margin.top,
@@ -641,6 +646,9 @@ Line Graph
       LineSvg.selectAll("g").remove();
       drawMap(deathWorld);
       drawLine(currentLineData,"World",)
+      barColour = "red";
+      barBaseData = deathWorld.features;
+      barCases(calcBarData(barBaseData, currentDate));
     });
 
 
@@ -648,7 +656,7 @@ Line Graph
     var newCasesButton = d3.select('#New')  
     .on('click', function() {
       mapColour = "new cases";
-      lineColour = "green";
+      lineColour = "steelblue";
       lineText = "New Cases: "
       colors = NewCasesColour;
       ranges = NewCasesRange;
@@ -657,12 +665,15 @@ Line Graph
       LineSvg.selectAll("g").remove();
       drawMap(newCaseWorld);
       drawLine(currentLineData,"World")
+      barColour = "#596F7E";
+      barBaseData = newCaseWorld.features;
+      barCases(calcBarData(barBaseData, currentDate));
     });
 
     var totalCasesButton = d3.select('#Total')  
     .on('click', function() {
       mapColour = "total cases"
-      lineColour = "steelblue";
+      lineColour = "green";
       lineText = "Total Cases: "
       colors = TotalCasesColour;
       ranges = TotalCasesRange;
@@ -670,5 +681,8 @@ Line Graph
       LineSvg.selectAll("g").remove();
       drawMap(World);
       drawLine(totalCasesLines,"World")
+      barColour = "green";
+      barBaseData = World.features;
+      barCases(calcBarData(barBaseData, currentDate));
     });
 
