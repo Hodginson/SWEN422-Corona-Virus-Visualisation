@@ -14,6 +14,7 @@ var currentLineData;
 var mapColour = "total cases";
 var totalCasesLines,newCasesLines,deathsLines;
 
+var currentArray;
 //Setup the Line SVG
 
 // set the dimensions and margins of the graph
@@ -84,9 +85,9 @@ function loadData() {
 
   queue()   // queue function  to load data files 
     .defer(d3.json, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/world.geojson")  // load the map data
-    .defer(d3.csv, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCases.csv")  // load csv file
-    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/deaths.csv")
-    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/New_Cases.csv")
+    .defer(d3.csv, "https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCasesv3.csv")  // load csv file
+    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/deathsv3.csv")
+    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/New_Casesv3.csv")
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCasesLinev2.csv")
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/New_CasesLinesv2.csv")
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/deathsLinev2.csv")
@@ -94,12 +95,11 @@ function loadData() {
 }
 
 function processData(error,world,countryData, deathData,newCaseData, totalLine, NewLine, DeathLine) {
-  // function accepts any errors from the queue function as first argument, then
-  // each data object in the order of chained defer() methods above
-  World=world;
-  deathWorld = world;
-  newCaseWorld = world;
-  console.log(totalLine)
+  // function accepts any errors from the queue function as first argument, then each dataset in the order called above
+  World=JSON.parse(JSON.stringify(world)); //we need to vcreate deep copies here so that we get unique records for each data source
+  deathWorld = JSON.parse(JSON.stringify(world));
+  newCaseWorld = JSON.parse(JSON.stringify(world));
+ 
   var countries = World.features;  // store the path in variable
   var countriesDeaths = deathWorld.features;
   var countriesNewCases = newCaseWorld.features;
@@ -118,8 +118,10 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
             if(dateArray.indexOf(k) == -1) { 
               dateArray.push(k);  // add new column headings to our array for later
             }
+            
             countries[i].properties[k] = Number(countryData[j][k])  // add each CSV column key/value to geometry object
           } 
+          
         }
         break; 
   }}}
@@ -156,7 +158,8 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(World);  // let's mug the map now with our newly populated data object
   drawLine(currentLineData,"World");
-
+  console.log(World)
+  console.log(countries) 
   var slider = d3.select(".slider")
   .append("input")
   .attr("type", "range")
@@ -256,16 +259,16 @@ function getColor(valueIn, valuesIn) {
   };
   if(mapColour == "total cases"){
   var color = d3.scaleSqrt() // create a linear scale
-    .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
-    .range(d3.schemeReds[7]);//[.3,1]);   // output for opacity between .3 and 1 %
+    .domain([500,1000,5000,10000,50000,100000,5000000,10000000,50000000])  // input uses min and max values
+    .range(["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"]);
   } else if(mapColour == "deaths"){
     var color = d3.scaleSqrt() // create a linear scale
-    .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
-    .range(d3.schemeBlues[7]);
+    .domain([20,100,250,1000,5000,1000,50000,100000,500000])  // input uses min and max values
+    .range(["pink","lightpink","palevioletred","salmon","indianred","tomato","orangered","crimson","firebrick"]);
   } else if(mapColour == "new cases"){
-    var color = d3.scaleSqrt() // create a linear scale
-    .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
-    .range(d3.schemeBlues[7]);
+    var color = d3.scaleThreshold() // create a linear scale
+    .domain([20,100,500,5000,10000,50000,250000,500000,1000000])  // input uses min and max values
+    .range(["powderblue","skyblue","lightskyblue","cornflowerblue","dodgerblue","steelblue","royalblue","mediumblue","midnightblue"]);
   };
 
   return color(valueIn);  // return that number to the caller
@@ -337,7 +340,81 @@ Line Graph
           .x(function(d) { return x(d3.timeParse("%d/%m/%Y")(d.Date)) })
           .y(function(d) { return y(d[filter]) })
         )
+
+        var focusText = LineSvg
+                .append('g')
+                .append('text')
+                .style("opacity", 1)
+                .attr("text-anchor", "left")
+                .attr("alignment-baseline", "middle")
+                .style("font-size", "14px")
+                .style("stroke", "black")
+
+            var mouseSVG = LineSvg.append("g")
+                .attr("class", "mouse-over-effects");
+
+            mouseSVG.append("path")
+            .attr("id", "verticalPosition") //Vertical dashed line
+            .style("stroke", "black")
+            .style("stroke-width", "1.5px")
+            .style("stroke-dasharray", "10,10")
+
+
+            mouseSVG.append("path")
+                .attr("id", "horizontalPosition") //Horizontal dashed line
+                .style("stroke", "black")
+                .style("stroke-width", "1.5px")
+                .style("stroke-dasharray", "10,10")
+
+                mouseSVG.append('svg:rect') //create a rect to record mouse movements
+                .attr('width', lineWidth) 
+                .attr('height', lineHeight)
+                .attr('fill', 'none')
+                .attr('pointer-events', 'all')
+                .on('mouseover', function() { //display the position and values when on the graph
+                  d3.select("#verticalPosition")
+                      .style("opacity", 1);
+                  d3.select("#horizontalPosition")
+                      .style("opacity", 1);
+                  focusText.style("opacity", 1)
+              })
+              .on('mousemove', function() { //Mouse moving over canvas
+                var xpos = x.invert(d3.mouse(mouseSVG.node())[0]);
+                var ypos = y.invert(d3.mouse(mouseSVG.node())[1]);
+
+                //Drawing the cross hair lines
+                var mouse = d3.mouse(this);
+                d3.select("#verticalPosition")
+                    .attr("d", function () { //This draws the path for the vertical line
+                        var d = "M" + mouse[0] + "," + lineHeight;
+                        d += " " + mouse[0] + "," + 0;
+                        return d;
+                    })
+                    .style("display", "block");
+
+                d3.select("#horizontalPosition")
+                    .attr("d", function () { //This draws the path for the horizontal line
+                        var d = "M" + lineWidth + "," + mouse[1];
+                        d += " " + 0 + "," + mouse[1];
+                        return d;
+                    })
+                    .style("display", "block");
+
+                focusText
+                    .html(xpos.toDateString() + " : " + Math.round(ypos).toLocaleString())
+                    .attr("x", x(xpos) + 5)
+                    .attr("y", y(ypos) - 10)
+            })
+                .on('mouseout', function() { //remove everything when the mouse isn't on the line graph
+                    d3.select("#verticalPosition")
+                        .style("opacity", 0);
+                    d3.select("#horizontalPosition")
+                        .style("opacity", 0);
+                    focusText.style("opacity", 0)
+                });
     };
+
+    
 
     /*##########################################
     Buttons
