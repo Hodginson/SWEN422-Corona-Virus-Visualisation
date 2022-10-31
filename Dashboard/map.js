@@ -93,7 +93,7 @@ function loadData() {
     })
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/NewCasesLine.csv",
     function(d){
-      return { Date : d3.timeParse("%Y-%m-%d")(d.Date), World : d.World, Africa:d.Africa,Europe:d.Europe,South_America:d.South_America,Oceania:d.Oceania, North_America:d.North_America }
+      return { Date : d3.timeParse("%d/%m/%Y")(d.Date), World : d.World, Africa:d.Africa,Europe:d.Europe,South_America:d.South_America,Oceania:d.Oceania, North_America:d.North_America }
     })
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/DeathsLines.csv",
     function(d){
@@ -321,7 +321,7 @@ Line Graph
         .range([ 0, lineWidth ]);
         LineSvg.append("g")
         .attr("transform", "translate(0," + lineHeight + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).ticks(20));
       
     // Add Y axis
       var y = d3.scaleLinear()
