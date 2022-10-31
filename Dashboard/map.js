@@ -9,7 +9,7 @@ https://d3-graph-gallery.com/graph/line_basic.html
 var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], newCaseDate=[],currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
-var deathWorld,newCaseWorld;
+var deathWorld,newCaseWorld,World;
 
 var mapColour = "total cases";
 var totalCasesLines,newCasesLines,deathsLines;
@@ -105,11 +105,11 @@ function loadData() {
 function processData(error,world,countryData, deathData,newCaseData, totalLine, NewLine, DeathLine) {
   // function accepts any errors from the queue function as first argument, then
   // each data object in the order of chained defer() methods above
-
+  World=world;
   deathWorld = world;
   newCaseWorld = world;
 
-  var countries = world.features;  // store the path in variable
+  var countries = World.features;  // store the path in variable
   var countriesDeaths = deathWorld.features;
   var countriesNewCases = newCaseWorld.features;
 
@@ -163,7 +163,7 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
 
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
-  drawMap(world);  // let's mug the map now with our newly populated data object
+  drawMap(World);  // let's mug the map now with our newly populated data object
   drawLine(totalLine);
 
   var slider = d3.select(".slider")
@@ -260,7 +260,7 @@ function getColor(valueIn, valuesIn) {
     var color = d3.scaleSqrt() // create a linear scale
     .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
     .range(d3.schemeBlues[7]);
-  } else if(mapColour == "new_cases"){
+  } else if(mapColour == "new cases"){
     var color = d3.scaleSqrt() // create a linear scale
     .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
     .range(d3.schemeBlues[7]);
@@ -359,12 +359,19 @@ Line Graph
 
     var newCasesButton = d3.select('#New')  
     .on('click', function() {
-      mapColour = "new_cases"
+      mapColour = "new cases"
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       drawMap(newCaseWorld);
       drawLine(newCasesLines)
     });
 
-
+    var totalCasesButton = d3.select('#Total')  
+    .on('click', function() {
+      mapColour = "total cases"
+      LineSvg.selectAll("path").remove();
+      LineSvg.selectAll("g").remove();
+      drawMap(World);
+      drawLine(totalCasesLines)
+    });
 
