@@ -636,6 +636,9 @@ Line Graph
 
     var deathButton = d3.select('#Deaths')  
     .on('click', function() {
+      d3.select('#Deaths').style('background-color',"green");
+      d3.select('#New').style('background-color',"rgb(109, 103, 103)");
+      d3.select('#Total').style('background-color',"rgb(109, 103, 103)");
       mapColour = "deaths"
       lineColour = "red";
       lineText = "Deaths: "
@@ -652,6 +655,9 @@ Line Graph
 
     var newCasesButton = d3.select('#New')  
     .on('click', function() {
+      d3.select('#New').style('background-color',"green");
+      d3.select('#Deaths').style('background-color',"rgb(109, 103, 103)");
+      d3.select('#Total').style('background-color',"rgb(109, 103, 103)");
       mapColour = "new cases";
       lineColour = "steelblue";
       lineText = "New Cases: "
@@ -666,6 +672,9 @@ Line Graph
 
     var totalCasesButton = d3.select('#Total')  
     .on('click', function() {
+      d3.select('#Total').style('background-color',"green");
+      d3.select('#Deaths').style('background-color',"rgb(109, 103, 103)");
+      d3.select('#New').style('background-color',"rgb(109, 103, 103)");
       mapColour = "total cases"
       lineColour = "green";
       lineText = "Total Cases: "
