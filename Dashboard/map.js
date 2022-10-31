@@ -18,8 +18,18 @@ var totalCasesLines,newCasesLines,deathsLines;
 
 var currentArray;
 
-const colors = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
-const ranges = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+const TotalCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
+const TotalCasesRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+
+const NewCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
+const NewCasesRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+
+const DeathsColour = ["pink","lightpink","palevioletred","salmon","indianred","tomato","orangered","crimson","firebrick"];
+const DeathsRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+
+
+var colors = TotalCasesColour;
+var ranges = TotalCasesRange;
 //Setup the Line SVG
 
 // set the dimensions and margins of the graph
@@ -244,8 +254,15 @@ function drawMap(world) {
     .attr("style", "outline: thin solid black")
     .style("visibility", "visible")
     .style("fill", "#878787")
-
+    svg.append("text")
+    .attr("x", width * 0.81)
+    .attr("y", height * 0.06)
+    .text(function(){if(mapColour == "deaths"){
+      return "Deaths:"
+    } else {return "Cases:"}});
     for (var i = 0; i < 9; i++) {
+     
+      
     svg.append('rect').attr("x", width * 0.97)
     .attr("y", height * 0.01 * (i * 5) + (height * 0.085))
     .attr("width", width * 0.02)
@@ -595,6 +612,8 @@ Line Graph
     var deathButton = d3.select('#Deaths')  
     .on('click', function() {
       mapColour = "deaths"
+      colors = DeathsColour;
+      ranges = DeathsRange;
       currentLineData = deathsLines;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
@@ -607,6 +626,8 @@ Line Graph
     var newCasesButton = d3.select('#New')  
     .on('click', function() {
       mapColour = "new cases"
+      colors = NewCasesColour;
+      ranges = NewCasesRange;
       currentLineData = newCasesLines;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
@@ -617,6 +638,8 @@ Line Graph
     var totalCasesButton = d3.select('#Total')  
     .on('click', function() {
       mapColour = "total cases"
+      colors = TotalCasesColour;
+      ranges = TotalCasesRange;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       drawMap(World);
