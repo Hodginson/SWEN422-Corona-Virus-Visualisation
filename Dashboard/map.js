@@ -4,10 +4,12 @@ Sources used to assist with code:
 https://d3-graph-gallery.com/graph/line_basic.html
 
 */
+
+//Global variables
 var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
-var deathWrold;
+var deathWorld;
 var mapColour = "total cases";
 var totalCasesLines,newCasesLines,deathsLines;
 
@@ -86,10 +88,16 @@ function loadData() {
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/New_Cases.csv")
     .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/totalCasesLine.csv",
     function(d){
-      return { Date : d3.timeParse("%Y-%m-%d")(d.Date), World : d.World }
+      return { Date : d3.timeParse("%Y-%m-%d")(d.Date), World : d.World, Africa:d.Africa,Europe:d.Europe,South_America:d.South_America,Oceania:d.Oceania, North_America:d.North_America }
     })
-    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/NewCasesLine.csv")
-    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/DeathsLines.csv")
+    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/NewCasesLine.csv",
+    function(d){
+      return { Date : d3.timeParse("%Y-%m-%d")(d.Date), World : d.World, Africa:d.Africa,Europe:d.Europe,South_America:d.South_America,Oceania:d.Oceania, North_America:d.North_America }
+    })
+    .defer(d3.csv,"https://raw.githubusercontent.com/Hodginson/SWEN422_A3/main/DeathsLines.csv",
+    function(d){
+      return { Date : d3.timeParse("%Y-%m-%d")(d.Date), World : d.World, Africa:d.Africa,Europe:d.Europe,South_America:d.South_America,Oceania:d.Oceania, North_America:d.North_America }
+    })
     .await(processData);   // once all files are loaded, call the processData function, pass the loaded objects as arguments
 }
 
@@ -98,8 +106,8 @@ function processData(error,world,countryData, deathData,newData, totalLine, NewL
   // each data object in the order of chained defer() methods above
 
   var countries = world.features;  // store the path in variable
-  deathWrold = world;
-  var countriesDeaths = deathWrold.features;
+  deathWorld = world;
+  var countriesDeaths = deathWorld.features;
  
   for (var i in countries) {    // for each geometry object
     countryNames.push({
@@ -117,26 +125,23 @@ function processData(error,world,countryData, deathData,newData, totalLine, NewL
           } 
         }
         break; 
-      }
-      
-      
-    }
-  }
+  }}}
   for (var m in countriesDeaths) { 
     for (var n in deathData) { 
-  if(countriesDeaths[m].id == deathData[n].iso_code) {   // if they match
-    for(var l in deathData[m]) {   // for each column in the a row within the CSV
-      if(l != 'name' && l != 'iso_code') {  // let's not add the name or id as props since we already have them
-        if(deathDate.indexOf(l) == -1) { 
-          deathDate.push(l);  // add new column headings to our array for later
+      if(countriesDeaths[m].id == deathData[n].iso_code) {   // if they match
+        for(var l in deathData[m]) {   // for each column in the a row within the CSV
+          if(l != 'name' && l != 'iso_code') {  // let's not add the name or id as props since we already have them
+            if(deathDate.indexOf(l) == -1) { 
+              deathDate.push(l);  // add new column headings to our array for later
+            }
+            countriesDeaths[m].properties[l] = Number(deathData[n][l])  // add each CSV column key/value to geometry object
+          } 
         }
-        countriesDeaths[m].properties[l] = Number(deathData[n][l])  // add each CSV column key/value to geometry object
-      } 
-    }
-    break; 
+      break; 
   }}}
+
   totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
-  console.log(dateArray.length)
+
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(world);  // let's mug the map now with our newly populated data object
   drawLine(totalLine);
@@ -153,6 +158,10 @@ function processData(error,world,countryData, deathData,newData, totalLine, NewL
   }); 
 
 }
+
+/*##########################################
+Map - Zane
+##########################################*/
 
 function drawMap(world) {
     
@@ -203,34 +212,7 @@ function drawMap(world) {
     });
 }
 
-function drawLine(data) {
-  
-  // Add X axis --> it is a date format
-  var x = d3.scaleTime()
-    .domain(d3.extent(data, function(d) { return d.Date; }))
-    .range([ 0, lineWidth ]);
-    LineSvg.append("g")
-    .attr("transform", "translate(0," + lineHeight + ")")
-    .call(d3.axisBottom(x));
-  
-// Add Y axis
-  var y = d3.scaleLinear()
-    .domain([0, d3.max(data, function(d) { return +d.World; })])
-    .range([ lineHeight, 0 ]);
-    LineSvg.append("g")
-    .call(d3.axisLeft(y));
-// Add the line
-LineSvg.append("path")
-    .datum(data)
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 1.5)
-    .attr("d", d3.line()
-      .x(function(d) { return x(d.Date) })
-      .y(function(d) { return y(d.World) })
-    )
-    console.log(data)
-};
+
 
 
 
@@ -295,18 +277,63 @@ svg.call(zoom);
 
 function zoomed() {
   svg
-      .selectAll('path') // To prevent stroke width from scaling
+      .selectAll('path') // make sure that the stroke width doesn't scale
       .attr('transform', d3.event.transform);
 }
 
 
 
-var changemap = d3.select('#Deaths')  
+
+
+ 
+/*##########################################
+Line Graph
+##########################################*/
+    function drawLine(data) {
+  
+      // Add X axis --> it is a date format
+      var x = d3.scaleTime()
+        .domain(d3.extent(data, function(d) { return d.Date; }))
+        .range([ 0, lineWidth ]);
+        LineSvg.append("g")
+        .attr("transform", "translate(0," + lineHeight + ")")
+        .call(d3.axisBottom(x));
+      
+    // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([0, d3.max(data, function(d) { return +d.World; })])
+        .range([ lineHeight, 0 ]);
+        LineSvg.append("g")
+        .call(d3.axisLeft(y));
+    // Add the line
+    LineSvg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+          .x(function(d) { return x(d.Date) })
+          .y(function(d) { return y(d.World) })
+        )
+        console.log(data)
+    };
+
+
+    var deathButton = d3.select('#Deaths')  
     .on('click', function() {
       mapColour = "deaths"
+      drawMap(deathWorld);
+      drawLine(deathsLines)
+    });
+
+
+
+    var newCasesButton = d3.select('#New_Cases')  
+    .on('click', function() {
+      mapColour = "new_cases"
       drawMap(deathWrold);
       drawLine(deathsLines)
     });
 
- 
+
 
