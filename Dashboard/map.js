@@ -8,15 +8,15 @@ var totalCasesLines,newCasesLines,deathsLines;
 
 
 // set the dimensions and margins of the graph
-var lineMargin = {top: 10, right: 30, bottom: 30, left: 100},
-    width = 1000 - lineMargin.left - lineMargin.right,
-    height = 1000 - lineMargin.top - lineMargin.bottom;
+var lineMargin = {top: 10, right: 30, bottom: 30, left: 80},
+    lineWidth = 1850 - lineMargin.left - lineMargin.right,
+    lineHeight = 400 - lineMargin.top - lineMargin.bottom;
 
 // append the svg object to the body of the page
 var LineSvg = d3.select("#line")
   .append("svg")
-    .attr("width", width + lineMargin.left + lineMargin.right)
-    .attr("height", height + lineMargin.top + lineMargin.bottom)
+    .attr("width", lineWidth + lineMargin.left + lineMargin.right)
+    .attr("height", lineHeight + lineMargin.top + lineMargin.bottom)
   .append("g")
     .attr("transform",
           "translate(" + lineMargin.left + "," + lineMargin.top + ")");
@@ -190,15 +190,15 @@ function drawLine(data) {
   // Add X axis --> it is a date format
   var x = d3.scaleTime()
     .domain(d3.extent(data, function(d) { return d.Date; }))
-    .range([ 0, width ]);
+    .range([ 0, lineWidth ]);
     LineSvg.append("g")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", "translate(0," + lineHeight + ")")
     .call(d3.axisBottom(x));
   
 // Add Y axis
   var y = d3.scaleLinear()
     .domain([0, d3.max(data, function(d) { return +d.World; })])
-    .range([ height, 0 ]);
+    .range([ lineHeight, 0 ]);
     LineSvg.append("g")
     .call(d3.axisLeft(y));
 // Add the line
@@ -285,7 +285,7 @@ var slider = d3.select(".slider")
 .append("input")
 .attr("type", "range")
 .attr("min", 0)
-.attr("max", 1002)
+.attr("max", 1003)
 .attr("step", 0)
 .on("input", function() {
   currentDate = this.value;
