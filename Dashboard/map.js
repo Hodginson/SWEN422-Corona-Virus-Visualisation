@@ -35,12 +35,16 @@ var colors = TotalCasesColour;
 var ranges = TotalCasesRange;
 
 //Setup the Line SVG
-
+var lineColour = "steelblue",
+lineText = "Total Cases: ";
 // set the dimensions and margins of the graph
 var lineMargin = {top: 10, right: 30, bottom: 30, left: 80},
     lineWidth = 1850 - lineMargin.left - lineMargin.right,
-    lineHeight = 400 - lineMargin.top - lineMargin.bottom;
+    lineHeight = 400 - lineMargin.top - lineMargin.bottom,
+    lineTooltip = { width: 100, height: 100, x: 10, y: -30 };;
 
+   var bisectDate = d3.bisector(function(d) { return d.date; }).left;
+   var dateFormatter = d3.timeFormat("%-e/%m/%Y");
 // append the svg object to the body of the page
 var LineSvg = d3.select("#line")
   .append("svg")
@@ -144,6 +148,34 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
         }
         break; 
   }}}
+
+
+
+  
+
+  totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
+  currentLineData = totalCasesLines;
+  d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
+  drawMap(World);  // let's mug the map now with our newly populated data object
+  drawLine(currentLineData,"World");
+  barData = calcBarData(countries, currentDate);
+
+  barCases(barData);
+  // console.log(barData)
+  // console.log("countries") 
+  // console.log(barData) 
+  var slider = d3.select(".slider")
+  .append("input")
+  .attr("type", "range")
+  .attr("min", 0)
+  .attr("max", dateArray.length-1)
+  .attr("step", 0)
+  .on("input", function() {
+    currentDate = this.value;
+    animateMap();
+    barCases(calcBarData(countries, currentDate));
+  }); 
+
   for (var m in countriesDeaths) { 
     for (var n in deathData) { 
       if(countriesDeaths[m].id == deathData[n].iso_code) {   // if they match
@@ -171,32 +203,6 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
         }
       break; 
   }}}
-
-
-  
-
-  totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
-  currentLineData = totalCasesLines;
-  d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
-  drawMap(World);  // let's mug the map now with our newly populated data object
-  drawLine(currentLineData,"World");
-  barData = calcBarData(countries, currentDate);
-
-  barCases(barData);
-  // console.log(barData)
-  // console.log("countries") 
-  // console.log(barData) 
-  var slider = d3.select(".slider")
-  .append("input")
-  .attr("type", "range")
-  .attr("min", 0)
-  .attr("max", dateArray.length-1)
-  .attr("step", 0)
-  .on("input", function() {
-    currentDate = this.value;
-    animateMap();
-    barCases(calcBarData(countries, currentDate));
-  }); 
 
 }
 
@@ -264,7 +270,7 @@ function drawMap(world) {
         console.log(filter)
         LineSvg.selectAll("path").remove();
         LineSvg.selectAll("g").remove();
-        drawLine(currentLineData,filter);
+        drawLine(currentLineData,filter,);
       });
 
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
@@ -547,78 +553,74 @@ Line Graph
     LineSvg.append("path")
         .datum(data)
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", lineColour)
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
           .x(function(d) { return x(d3.timeParse("%d/%m/%Y")(d.Date)) })
           .y(function(d) { return y(d[filter]) })
-        )
+        )         
+        var focus = LineSvg.append("g")
+            .attr("class", "focus")
+            .style("display", "none");
+            
+            
+        focus.append("circle")
+            .attr("r", 5);
 
-      var text = LineSvg
-                .append('g')
-                .append('text')
-                .style("opacity", 1)
-                .style("font-size", "14px")
-                .style("stroke", "black")
+            focus.append("rect")
+            .attr("class", "tooltip")
+            .attr("width", 200)
+            .attr("height", 50)
+            .attr("x", 10)
+            .attr("y", -22)
+            .attr("rx", 4)
+            .attr("ry", 4)
+            .style('fill',"white");
 
-            var mouseSVG = LineSvg.append("g")
+            
 
+        focus.append("text")
+            .attr("class", "tooltip-date")
+            .attr("x", 18)
+            .attr("y", -2);
 
-            mouseSVG.append("path")
-            .attr("id", "verticalPosition") //Vertical dashed line
-            .style("stroke", "black")
-            .style("stroke-width", "1.5px")
-            .style("stroke-dasharray", "10,10")
+        focus.append("text")
+            .attr("x", 18)
+            .attr("y", 18)
+            .text(lineText);
 
-            mouseSVG.append("path")
-                .attr("id", "horizontalPosition") //Horizontal dashed line
-                .style("stroke", "black")
-                .style("stroke-width", "1.5px")
-                .style("stroke-dasharray", "10,10")
+        focus.append("text")
+            .attr("class", "tooltip-likes")
+            .attr("x", 100)
+            .attr("y", 18);
 
-                mouseSVG.append('svg:rect') //create a rect to record mouse movements
-                .attr('width', lineWidth) 
-                .attr('height', lineHeight)
-                .attr('fill', 'none')
-                .attr('pointer-events', 'all')
-                .on('mouseover', function() { //display the position and values when on the graph
-                  mouseSVG.selectAll("path")
-                    .style("opacity",1)
-                  text
-                    .style("opacity", 1);
-              })
-              .on('mousemove', function() { //for when the mouse moves
-                var xpos = x.invert(d3.mouse(mouseSVG.node())[0]);
-                var ypos = y.invert(d3.mouse(mouseSVG.node())[1]);
+        LineSvg.append("rect")
+            .attr("class", "overlay")
+            .attr("width", lineWidth)
+            .attr("height", lineHeight)
+            .attr('fill', 'none')
+            .attr('pointer-events', 'all')
+            .on("mouseover", function() { focus.style("display", null); })
+            .on("mouseout", function() { focus.style("display", "none"); })
+            .on("mousemove", function() {
+            var xpos = x.invert(d3.mouse(LineSvg.node())[0]);
+            var ypos = y.invert(d3.mouse(LineSvg.node())[1]);
 
-                //Drawing the actual dashed lines based off where the mouse is positioned
-                var mouse = d3.mouse(this);
-                d3.select("#verticalPosition")
-                    .attr("d", function () { 
-                        var d = "M" + mouse[0] + "," + lineHeight;
-                        d += " " + mouse[0] + "," + 0;
-                        return d;
-                    })
+              var x0;
+              for(i in data){
 
-                d3.select("#horizontalPosition")
-                    .attr("d", function () { 
-                        var d = "M" + lineWidth + "," + mouse[1];
-                        d += " " + 0 + "," + mouse[1];
-                        return d;
-                    })
+                if(data[i].Date == dateFormatter(xpos)){
+                  x0= data[i]
+                  i=0;
+                  break;
+                }
+              };
 
-                text
-                    .html(xpos.toDateString() + " : " + Math.round(ypos).toLocaleString())
-                    .attr("x", x(xpos) + 5)
-                    .attr("y", y(ypos) - 10)
-            })
-                .on('mouseout', function() { //remove everything when the mouse isn't on the line graph
-                    mouseSVG.selectAll("path")
-                        .style("opacity", 0);
-                    text
-                    .style("opacity", 0);
-                    
-                });
+              focus.attr("transform", "translate(" + x(d3.timeParse("%d/%m/%Y")(x0.Date)) + "," + y(x0[filter]) + ")");
+
+              focus.select(".tooltip-date").text(xpos.toDateString());
+              focus.select(".tooltip-likes").text(Math.round(ypos).toLocaleString());
+          });
     };
 
     
@@ -630,20 +632,24 @@ Line Graph
     var deathButton = d3.select('#Deaths')  
     .on('click', function() {
       mapColour = "deaths"
+      lineColour = "red";
+      lineText = "Deaths: "
       colors = DeathsColour;
       ranges = DeathsRange;
       currentLineData = deathsLines;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       drawMap(deathWorld);
-      drawLine(currentLineData,"World")
+      drawLine(currentLineData,"World",)
     });
 
 
 
     var newCasesButton = d3.select('#New')  
     .on('click', function() {
-      mapColour = "new cases"
+      mapColour = "new cases";
+      lineColour = "green";
+      lineText = "New Cases: "
       colors = NewCasesColour;
       ranges = NewCasesRange;
       currentLineData = newCasesLines;
@@ -656,6 +662,8 @@ Line Graph
     var totalCasesButton = d3.select('#Total')  
     .on('click', function() {
       mapColour = "total cases"
+      lineColour = "steelblue";
+      lineText = "Total Cases: "
       colors = TotalCasesColour;
       ranges = TotalCasesRange;
       LineSvg.selectAll("path").remove();
