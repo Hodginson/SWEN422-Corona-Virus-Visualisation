@@ -8,7 +8,7 @@ http://bl.ocks.org/lamchau/405f2d69fb3c80ad724a
 */
 
 //Global variables
-var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], newCaseDate=[],currentDate = 0, playing = false;
+var mapWidth, mapHeight, width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], newCaseDate=[],currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
 var deathWorld,newCaseWorld,World;
@@ -20,18 +20,20 @@ var currentArray;
 
 var barSvg;
 
+//setup the color ranges and scale for the legend to allow for easy swapping 
 const TotalCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
-const TotalCasesRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+const TotalCasesRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10001 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
 
-const NewCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
-const NewCasesRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+const NewCasesColour = ["powderblue","skyblue","lightskyblue","cornflowerblue","dodgerblue","steelblue","royalblue","mediumblue","midnightblue"];
+const NewCasesRange = ["0 - 20","21 - 100","101 - 500","501 - 5000","5001 - 10000","10001 - 50000","50001 - 250000","250001 - 500000","500001 - 1000000"];
 
 const DeathsColour = ["pink","lightpink","palevioletred","salmon","indianred","tomato","orangered","crimson","firebrick"];
-const DeathsRange = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
+const DeathsRange = ["0 - 20","21 - 100","101 - 250","251 - 1000","1001 - 5000","5001 - 10000","10001 - 50000","50001 - 100000","100001 - 500000"];
 
 
 var colors = TotalCasesColour;
 var ranges = TotalCasesRange;
+
 //Setup the Line SVG
 
 // set the dimensions and margins of the graph
@@ -64,11 +66,11 @@ function init() {
 
 function setMap() { //Setitng up the map layout
 
-  width = 800, height = 460;  
+  mapWidth = 800, mapHeight = 460;  
 
   projection = d3.geoMercator()   // define the projection 
     .scale(100)
-    .translate([width /2.5, height / 2])
+    .translate([mapWidth /2.5, mapHeight / 2])
     .precision(.1);
 
   path = d3.geoPath()  // create path generator function
@@ -77,8 +79,8 @@ function setMap() { //Setitng up the map layout
   graticule = d3.geoGraticule(); // create a graticule
 
   svg = d3.select("#map").append("svg")   // append a svg to our html div to hold our map
-      .attr("width", width)
-      .attr("height", height);
+      .attr("width", mapWidth)
+      .attr("height", mapHeight);
 
   svg.append("defs").append("path")   // prepare some svg for outer container of svg elements
       .datum({type: "Sphere"})
@@ -267,40 +269,36 @@ function drawMap(world) {
 
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
 
-    svg.append('rect').attr("x", width * 0.8)
-    .attr("y", height * 0.03)
+    svg.append('rect').attr("x", mapWidth * 0.8)
+    .attr("y", mapHeight * 0.005)
     .attr("width", 200)
-    .attr("height", height * 0.5)
-    .attr("class", function(d){ return "Legend_cases" } )
+    .attr("height", mapHeight * 0.5)
     .attr("style", "outline: thin solid black")
-    .style("visibility", "visible")
     .style("fill", "#878787")
+
     svg.append("text")
-    .attr("x", width * 0.81)
-    .attr("y", height * 0.06)
+    .attr("x", mapWidth * 0.805)
+    .attr("y", mapHeight * 0.05)
     .text(function(){if(mapColour == "deaths"){
       return "Deaths:"
-    } else {return "Cases:"}});
-    for (var i = 0; i < 9; i++) {
-     
-      
-    svg.append('rect').attr("x", width * 0.97)
-    .attr("y", height * 0.01 * (i * 5) + (height * 0.085))
-    .attr("width", width * 0.02)
-    .attr("class", function(d){ return "Legend_cases" } )
-    .style("visibility", "visible")
-    .attr("height", height * 0.04)
-    .style("fill", colors[i])
+    } else {return "Cases:"}})
+    .style("font-size", "18px")
+    .style("fill", "#ffffff");
 
-    svg.append('text').attr("x", width * 0.801)
-      .attr("y", height * 0.04 * (i*1.25) + (height * 0.118))
-      .attr("width", width * 0.03)
-      .attr("height", height * 0.05)
-      .attr("class", function(d){ return "Legend_cases" } )
-      .style("visibility", "visible")
-      .text(ranges[i])
-      .style("font-size", "14px")
-      .style("fill", "#ffffff")  
+    for (var i = 0; i < 9; i++) {   
+      svg.append('rect').attr("x", mapWidth * 0.97)
+      .attr("y", mapHeight * 0.01 * (i * 5) + (mapHeight * 0.06))
+      .attr("width", mapWidth * 0.02)
+      .attr("height", mapHeight * 0.04)
+      .style("fill", colors[i])
+
+      svg.append('text').attr("x", mapWidth * 0.805)
+        .attr("y", mapHeight * 0.04 * (i*1.25) + (mapHeight * 0.095))
+        .attr("width", mapWidth * 0.03)
+        .attr("height", mapHeight * 0.05)
+        .text(ranges[i])
+        .style("font-size", "14px")
+        .style("fill", "#ffffff")  
     }
 
     d3.selectAll('.country')  // select all the countries
@@ -336,7 +334,7 @@ function getColor(valueIn, valuesIn) {
     .range(["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"]);
   } else if(mapColour == "deaths"){
     var color = d3.scaleSqrt() // create a linear scale
-    .domain([20,100,250,1000,5000,1000,50000,100000,500000])  // input uses min and max values
+    .domain([20,100,250,1000,5000,10000,50000,100000,500000])  // input uses min and max values
     .range(["pink","lightpink","palevioletred","salmon","indianred","tomato","orangered","crimson","firebrick"]);
   } else if(mapColour == "new cases"){
     var color = d3.scaleThreshold() // create a linear scale
