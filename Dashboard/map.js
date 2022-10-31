@@ -676,6 +676,7 @@ Line Graph
       drawLine(currentLineData,"World","World")
       barColour = "red";
       barBaseData = deathWorld.features;
+      selCountry = undefined;
       barCases(calcBarData(barBaseData, currentDate));
     });
 
@@ -699,6 +700,7 @@ Line Graph
       drawLine(currentLineData,"World","World")
       barColour = "#596F7E";
       barBaseData = newCaseWorld.features;
+      selCountry = undefined;
       barCases(calcBarData(barBaseData, currentDate));
     });
 
@@ -719,6 +721,7 @@ Line Graph
       drawLine(totalCasesLines,"World","World")
       barColour = "green";
       barBaseData = World.features;
+      selCountry = undefined;
       barCases(calcBarData(barBaseData, currentDate));
     });
 
