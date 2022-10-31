@@ -6,10 +6,11 @@ https://d3-graph-gallery.com/graph/line_basic.html
 */
 
 //Global variables
-var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], currentDate = 0, playing = false;
+var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], newCaseDate=[],currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
-var deathWorld;
+var deathWorld,newCaseWorld;
+
 var mapColour = "total cases";
 var totalCasesLines,newCasesLines,deathsLines;
 
@@ -101,13 +102,18 @@ function loadData() {
     .await(processData);   // once all files are loaded, call the processData function, pass the loaded objects as arguments
 }
 
-function processData(error,world,countryData, deathData,newData, totalLine, NewLine, DeathLine) {
+function processData(error,world,countryData, deathData,newCaseData, totalLine, NewLine, DeathLine) {
   // function accepts any errors from the queue function as first argument, then
   // each data object in the order of chained defer() methods above
 
-  var countries = world.features;  // store the path in variable
   deathWorld = world;
+  newCaseWorld = world;
+
+  var countries = world.features;  // store the path in variable
   var countriesDeaths = deathWorld.features;
+  var countriesNewCases = newCaseWorld.features;
+
+ 
  
   for (var i in countries) {    // for each geometry object
     countryNames.push({
@@ -135,6 +141,20 @@ function processData(error,world,countryData, deathData,newData, totalLine, NewL
               deathDate.push(l);  // add new column headings to our array for later
             }
             countriesDeaths[m].properties[l] = Number(deathData[n][l])  // add each CSV column key/value to geometry object
+          } 
+        }
+      break; 
+  }}}
+
+  for (var q in countriesNewCases) { 
+    for (var r in newCaseData) { 
+      if(countriesNewCases[q].id == newCaseData[r].iso_code) {   // if they match
+        for(var s in newCaseData[q]) {   // for each column in the a row within the CSV
+          if(s != 'name' && s != 'iso_code') {  // let's not add the name or id as props since we already have them
+            if(newCaseDate.indexOf(s) == -1) { 
+              newCaseDate.push(s);  // add new column headings to our array for later
+            }
+            countriesNewCases[q].properties[s] = Number(newCaseData[r][s])  // add each CSV column key/value to geometry object
           } 
         }
       break; 
@@ -239,7 +259,11 @@ function getColor(valueIn, valuesIn) {
   } else if(mapColour == "deaths"){
     var color = d3.scaleSqrt() // create a linear scale
     .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
-    .range(d3.schemeBlues[7]);//[.3,1]);   // output for opacity between .3 and 1 %
+    .range(d3.schemeBlues[7]);
+  } else if(mapColour == "new_cases"){
+    var color = d3.scaleSqrt() // create a linear scale
+    .domain([valuesIn[0],valuesIn[1]])  // input uses min and max values
+    .range(d3.schemeBlues[7]);
   };
 
   return color(valueIn);  // return that number to the caller
@@ -318,21 +342,28 @@ Line Graph
         console.log(data)
     };
 
+    /*##########################################
+    Buttons
+    ##########################################*/
 
     var deathButton = d3.select('#Deaths')  
     .on('click', function() {
       mapColour = "deaths"
+      LineSvg.selectAll("path").remove();
+      LineSvg.selectAll("g").remove();
       drawMap(deathWorld);
       drawLine(deathsLines)
     });
 
 
 
-    var newCasesButton = d3.select('#New_Cases')  
+    var newCasesButton = d3.select('#New')  
     .on('click', function() {
       mapColour = "new_cases"
-      drawMap(deathWrold);
-      drawLine(deathsLines)
+      LineSvg.selectAll("path").remove();
+      LineSvg.selectAll("g").remove();
+      drawMap(newCaseWorld);
+      drawLine(newCasesLines)
     });
 
 
