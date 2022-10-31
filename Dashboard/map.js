@@ -22,6 +22,7 @@ var barSvg;
 var barBaseData;
 var barColour = "green";
 var barAccColour = "Goldenrod";
+var selCountry;
 
 //setup the color ranges and scale for the legend to allow for easy swapping 
 const TotalCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
@@ -177,7 +178,7 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   .on("input", function() {
     currentDate = this.value;
     updateMap();
-    barCases(calcBarData(barBaseData, currentDate));
+    barCases(calcBarData(barBaseData, currentDate), selCountry);
   }); 
 
   for (var m in countriesDeaths) { 
@@ -281,7 +282,8 @@ function drawMap(world) {
         LineSvg.selectAll("text").remove();
         drawLine(currentLineData,filter,countryName);
 
-        barCases(calcBarData(barBaseData, currentDate), countryName);
+        selCountry = countryName;
+        barCases(calcBarData(barBaseData, currentDate), selCountry);
 
       });
 
