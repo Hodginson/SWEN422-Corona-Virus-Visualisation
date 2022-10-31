@@ -1,21 +1,11 @@
-#wrapper {
-    display: block;
-    width: 1000px;
-    /*margin: -30px auto 0;/*/
-    background-color: #ccc;
-    margin-top: 20px;
-}
+
 #map {
-    width: 1000px;
-    height: 600px;
-    position: relative;
+  margin-top: 20px;
+  left: 50px;
+   position: relative;
 }
 #line {
-  
-
-
-  position: relative;
-  background-color: aqua;
+    position: relative;
 }
 .stroke {
   fill: none;
@@ -47,12 +37,14 @@
    /* fill: steelblue;*/
     stroke: white;
 }
-#play, #clock {
-    position: absolute;
-    top: 15px;
+#Deaths,#New,#Total, #clock {
+    display: inline-block;
+    margin: 10px;
+    top: 10px;
 }
 .slider {
     left: 15px;
+    display: inline;
 }
 #clock {
     margin-top: 0px;
@@ -75,9 +67,13 @@ box-shadow:         3px 3px 10px 0px rgba(0, 0, 0, 0.25);
 }
 .header {
     background-color: #888;
-    height: 50px;
+    height: 30px;
   }
 .tooltip p {
 margin: 0;
 padding: 0;
+}
+
+body{
+  background-color: #ccc;
 }

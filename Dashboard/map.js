@@ -1,3 +1,9 @@
+/*
+Sources used to assist with code:
+
+https://d3-graph-gallery.com/graph/line_basic.html
+
+*/
 var width, height, projection, path, graticule, svg, dateArray = [],deathDate = [], currentDate = 0, playing = false;
 var countryNames = [];
 var shapes;
@@ -37,10 +43,10 @@ function init() {
 
 function setMap() {
 
-  width = 960, height = 580;  // map width and height
+  width = 700, height = 460;  // map width and height
 
   projection = d3.geoMercator()   // define the projection 
-    .scale(110)
+    .scale(100)
     .translate([width / 2, height / 2])
     .precision(.1);
 
@@ -130,10 +136,22 @@ function processData(error,world,countryData, deathData,newData, totalLine, NewL
     break; 
   }}}
   totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
-  console.log(totalCasesLines)
+  console.log(dateArray.length)
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(world);  // let's mug the map now with our newly populated data object
   drawLine(totalLine);
+
+  var slider = d3.select(".slider")
+  .append("input")
+  .attr("type", "range")
+  .attr("min", 0)
+  .attr("max", dateArray.length-1)
+  .attr("step", 0)
+  .on("input", function() {
+    currentDate = this.value;
+    animateMap();
+  }); 
+
 }
 
 function drawMap(world) {
@@ -270,7 +288,7 @@ function animateMap() {
 
 window.onload = init();  
 const zoom = d3.zoom()
-    .scaleExtent([1, 24])
+    .scaleExtent([1, 5])
     .on("zoom", zoomed);
 
 svg.call(zoom);
@@ -281,22 +299,13 @@ function zoomed() {
       .attr('transform', d3.event.transform);
 }
 
-var slider = d3.select(".slider")
-.append("input")
-.attr("type", "range")
-.attr("min", 0)
-.attr("max", 1003)
-.attr("step", 0)
-.on("input", function() {
-  currentDate = this.value;
-  animateMap();
-}); 
+
 
 var changemap = d3.select('#Deaths')  
     .on('click', function() {
       mapColour = "deaths"
       drawMap(deathWrold);
-      
+      drawLine(deathsLines)
     });
 
  
