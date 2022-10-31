@@ -66,7 +66,7 @@ tooltip = d3.select("body").append("div")
 function init() {
 
   setMap();
-  animateMap();
+  updateMap();
 
 }
 
@@ -159,7 +159,7 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   currentLineData = totalCasesLines;
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(World);  // let's mug the map now with our newly populated data object
-  drawLine(currentLineData,"World");
+  drawLine(currentLineData,"World","World");
   barBaseData = countries;
   barData = calcBarData(barBaseData, currentDate);
 
@@ -175,7 +175,7 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   .attr("step", 0)
   .on("input", function() {
     currentDate = this.value;
-    animateMap();
+    updateMap();
     barCases(calcBarData(barBaseData, currentDate));
   }); 
 
@@ -266,16 +266,19 @@ function drawMap(world) {
       })
       .on("click", function(d){
         var filter;
+        var countryName;
         for(i in countryNames){
           if(countryNames[i].Country_Name == d.properties.name){
             filter = countryNames[i].iso_code;
+            countryName =  countryNames[i].Country_Name
             break;
           }
         };
         console.log(filter)
         LineSvg.selectAll("path").remove();
         LineSvg.selectAll("g").remove();
-        drawLine(currentLineData,filter,);
+        LineSvg.selectAll("text").remove();
+        drawLine(currentLineData,filter,countryName);
       });
 
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
@@ -335,10 +338,7 @@ function sequenceMap() {
 }
 
 function getColor(valueIn, valuesIn) {
-  if(typeof valueIn == "undefined"){
 
-    valueIn = 0
-  };
   if(mapColour == "total cases"){
   var color = d3.scaleSqrt() // create a linear scale
     .domain([500,1000,5000,10000,50000,100000,5000000,10000000,50000000])  // input uses min and max values
@@ -357,24 +357,23 @@ function getColor(valueIn, valuesIn) {
 }
 
 function getDataRange() {
-  // function loops through all the data values from the current data attribute
-  // and returns the min and max values
+  // function loops through all the data values and finds the min and max values
 
   var min = Infinity, max = -Infinity;  
   d3.selectAll('.country')
     .each(function(d,i) {
-      var currentValue = d.properties[dateArray[currentDate]];
-      if(currentValue <= min && currentValue != -99 && currentValue != 'undefined') {
-        min = currentValue;
+      var currentData = d.properties[dateArray[currentDate]];
+      if(currentData <= min) {
+        min = currentData;
       }
-      if(currentValue >= max && currentValue != -99 && currentValue != 'undefined') {
-        max = currentValue;
+      if(currentData >= max) {
+        max = currentData;
       }
   });
   return [min,max];  
 }
 
-function animateMap() {
+function updateMap() {
   sequenceMap();  // update the representation of the map 
   d3.select('#clock').html(dateArray[currentDate]);  // update the clock
 }
@@ -538,7 +537,7 @@ function barCases(barData){
 /*##########################################
 Line Graph
 ##########################################*/
-    function drawLine(data,filter) {
+    function drawLine(data,filter,countryName) {
       console.log(filter)
       // Add X axis --> it is a date format
       var x = d3.scaleTime()
@@ -563,7 +562,13 @@ Line Graph
         .attr("d", d3.line()
           .x(function(d) { return x(d3.timeParse("%d/%m/%Y")(d.Date)) })
           .y(function(d) { return y(d[filter]) })
-        )         
+        )  
+      LineSvg.append("text")
+      .attr("x", lineWidth/2)
+      .attr("y", lineHeight*0.1)
+      .text(countryName) 
+      .style("font-size", "30px")
+        
         var focus = LineSvg.append("g")
             .attr("class", "focus")
             .style("display", "none");
@@ -645,7 +650,7 @@ Line Graph
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       drawMap(deathWorld);
-      drawLine(currentLineData,"World",)
+      drawLine(currentLineData,"World","World")
       barColour = "red";
       barBaseData = deathWorld.features;
       barCases(calcBarData(barBaseData, currentDate));
@@ -664,7 +669,7 @@ Line Graph
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       drawMap(newCaseWorld);
-      drawLine(currentLineData,"World")
+      drawLine(currentLineData,"World","World")
       barColour = "#596F7E";
       barBaseData = newCaseWorld.features;
       barCases(calcBarData(barBaseData, currentDate));
@@ -680,7 +685,7 @@ Line Graph
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       drawMap(World);
-      drawLine(totalCasesLines,"World")
+      drawLine(totalCasesLines,"World","World")
       barColour = "green";
       barBaseData = World.features;
       barCases(calcBarData(barBaseData, currentDate));
