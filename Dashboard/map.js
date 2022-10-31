@@ -477,7 +477,7 @@ function barCases(barData){
     .attr("width", "100%")
     .attr("height", "100%")
     .style("fill", "#ccc");
-  
+    var dataRange = getDataRange();
   const barwidth = 25
   const corner = Math.floor((barwidth/2) + 5)
   //bars
@@ -486,7 +486,9 @@ function barCases(barData){
     .data(barData)
     .enter()
     .append("path")
-    .attr("fill", barColour)
+    .attr("fill", function(d) {
+      return getColor(d.score, dataRange);  // the end color value
+    })//barColour)
     .attr("d", (d, i) => roundedRect(
     scaleX(0),
     (i * 28) + margin.top,
