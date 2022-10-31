@@ -21,6 +21,7 @@ var currentArray;
 var barSvg;
 var barBaseData;
 var barColour = "green";
+var barAccColour = "Goldenrod";
 
 //setup the color ranges and scale for the legend to allow for easy swapping 
 const TotalCasesColour = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
@@ -279,6 +280,9 @@ function drawMap(world) {
         LineSvg.selectAll("g").remove();
         LineSvg.selectAll("text").remove();
         drawLine(currentLineData,filter,countryName);
+
+        barCases(calcBarData(barBaseData, currentDate), countryName);
+
       });
 
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
@@ -396,7 +400,7 @@ function zoomed() {
 Bar Graph - Michael
 ##########################################*/
 
-function barCases(barData){
+function barCases(barData, selectedCountry){
   
   // console.log(barData)
 
@@ -487,6 +491,11 @@ function barCases(barData){
     .enter()
     .append("path")
     .attr("fill", function(d) {
+      if(typeof selectedCountry != "undefined"){
+        if(d.name == selectedCountry){
+          return barAccColour;
+        }
+      }
       return getColor(d.score, dataRange);  // the end color value
     })//barColour)
     .attr("d", (d, i) => roundedRect(
