@@ -1,8 +1,10 @@
 /*
 Sources used to assist with code:
 
+Line Chart help:
 https://d3-graph-gallery.com/graph/line_basic.html
-
+https://www.d3-graph-gallery.com/graph/line_cursor.html 
+http://bl.ocks.org/lamchau/405f2d69fb3c80ad724a
 */
 
 //Global variables
@@ -341,24 +343,21 @@ Line Graph
           .y(function(d) { return y(d[filter]) })
         )
 
-        var focusText = LineSvg
+      var text = LineSvg
                 .append('g')
                 .append('text')
                 .style("opacity", 1)
-                .attr("text-anchor", "left")
-                .attr("alignment-baseline", "middle")
                 .style("font-size", "14px")
                 .style("stroke", "black")
 
             var mouseSVG = LineSvg.append("g")
-                .attr("class", "mouse-over-effects");
+
 
             mouseSVG.append("path")
             .attr("id", "verticalPosition") //Vertical dashed line
             .style("stroke", "black")
             .style("stroke-width", "1.5px")
             .style("stroke-dasharray", "10,10")
-
 
             mouseSVG.append("path")
                 .attr("id", "horizontalPosition") //Horizontal dashed line
@@ -372,45 +371,42 @@ Line Graph
                 .attr('fill', 'none')
                 .attr('pointer-events', 'all')
                 .on('mouseover', function() { //display the position and values when on the graph
-                  d3.select("#verticalPosition")
-                      .style("opacity", 1);
-                  d3.select("#horizontalPosition")
-                      .style("opacity", 1);
-                  focusText.style("opacity", 1)
+                  mouseSVG.selectAll("path")
+                    .style("opacity",1)
+                  text
+                    .style("opacity", 1);
               })
-              .on('mousemove', function() { //Mouse moving over canvas
+              .on('mousemove', function() { //for when the mouse moves
                 var xpos = x.invert(d3.mouse(mouseSVG.node())[0]);
                 var ypos = y.invert(d3.mouse(mouseSVG.node())[1]);
 
-                //Drawing the cross hair lines
+                //Drawing the actual dashed lines based off where the mouse is positioned
                 var mouse = d3.mouse(this);
                 d3.select("#verticalPosition")
-                    .attr("d", function () { //This draws the path for the vertical line
+                    .attr("d", function () { 
                         var d = "M" + mouse[0] + "," + lineHeight;
                         d += " " + mouse[0] + "," + 0;
                         return d;
                     })
-                    .style("display", "block");
 
                 d3.select("#horizontalPosition")
-                    .attr("d", function () { //This draws the path for the horizontal line
+                    .attr("d", function () { 
                         var d = "M" + lineWidth + "," + mouse[1];
                         d += " " + 0 + "," + mouse[1];
                         return d;
                     })
-                    .style("display", "block");
 
-                focusText
+                text
                     .html(xpos.toDateString() + " : " + Math.round(ypos).toLocaleString())
                     .attr("x", x(xpos) + 5)
                     .attr("y", y(ypos) - 10)
             })
                 .on('mouseout', function() { //remove everything when the mouse isn't on the line graph
-                    d3.select("#verticalPosition")
+                    mouseSVG.selectAll("path")
                         .style("opacity", 0);
-                    d3.select("#horizontalPosition")
-                        .style("opacity", 0);
-                    focusText.style("opacity", 0)
+                    text
+                    .style("opacity", 0);
+                    
                 });
     };
 
