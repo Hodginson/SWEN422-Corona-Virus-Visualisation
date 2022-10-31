@@ -40,16 +40,19 @@
 #Deaths,#New,#Total, #clock {
     display: inline-block;
     margin: 10px;
-    top: 10px;
+   align-items: center;
 }
+
 .slider {
+    margin-top: 10px;
     left: 15px;
-    display: inline;
+    display: inline-block;
 }
 #clock {
-    margin-top: 0px;
+    margin-top: 15px;
     left: 35px;
     left: 35px;
+    color: #fff;
 }
 
 .tooltip {
@@ -67,7 +70,7 @@ box-shadow:         3px 3px 10px 0px rgba(0, 0, 0, 0.25);
 }
 .header {
     background-color: #888;
-    height: 30px;
+
   }
 .tooltip p {
 margin: 0;
@@ -76,4 +79,29 @@ padding: 0;
 
 body{
   background-color: #ccc;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: rgb(109, 103, 103);
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+  background-color: rgb(124, 117, 117);
 }

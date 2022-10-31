@@ -14,7 +14,7 @@ var deathWorld,newCaseWorld,World;
 var mapColour = "total cases";
 var totalCasesLines,newCasesLines,deathsLines;
 
-
+//Setup the Line SVG
 
 // set the dimensions and margins of the graph
 var lineMargin = {top: 10, right: 30, bottom: 30, left: 80},
@@ -32,7 +32,7 @@ var LineSvg = d3.select("#line")
 
 
 
-
+//Tooltip for hovering in the map
 tooltip = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
@@ -44,9 +44,9 @@ function init() {
 
 }
 
-function setMap() {
+function setMap() { //Setitng up the map layout
 
-  width = 700, height = 460;  // map width and height
+  width = 700, height = 460;  
 
   projection = d3.geoMercator()   // define the projection 
     .scale(100)
@@ -161,7 +161,7 @@ function processData(error,world,countryData, deathData,newCaseData, totalLine, 
   }}}
 
   totalCasesLines = totalLine,newCasesLines = NewLine,deathsLines = DeathLine;
-
+  
   d3.select('#clock').html(dateArray[currentDate]);  // populate the clock with the date
   drawMap(World);  // let's mug the map now with our newly populated data object
   drawLine(totalLine);
@@ -193,7 +193,6 @@ function drawMap(world) {
         return "code_" + d.properties.id; }, true)  // give each a unique id for access later
       .attr("d", path) // create them using the svg path generator defined above
       .on("mouseover", function(d) {
-        console.log(d.properties)
         d3.selectAll(".country")
             .transition()
               .duration(200)
@@ -306,10 +305,6 @@ function zoomed() {
 }
 
 
-
-
-
- 
 /*##########################################
 Line Graph
 ##########################################*/
@@ -339,7 +334,6 @@ Line Graph
           .x(function(d) { return x(d.Date) })
           .y(function(d) { return y(d.World) })
         )
-        console.log(data)
     };
 
     /*##########################################
