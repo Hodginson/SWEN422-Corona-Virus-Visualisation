@@ -17,6 +17,9 @@ var mapColour = "total cases";
 var totalCasesLines,newCasesLines,deathsLines;
 
 var currentArray;
+
+const colors = ["palegreen","springgreen","mediumspringgreen","greenyellow","lawngreen","limegreen","forestgreen","green","darkgreen"];
+const ranges = ["0 - 500","501 - 1000","1001 - 5000","5001 - 10000","10000 - 50000","50001 - 100000","100001 - 5000000","5000001 - 10000000","10000001 - 50000000"];
 //Setup the Line SVG
 
 // set the dimensions and margins of the graph
@@ -49,11 +52,11 @@ function init() {
 
 function setMap() { //Setitng up the map layout
 
-  width = 700, height = 460;  
+  width = 800, height = 460;  
 
   projection = d3.geoMercator()   // define the projection 
     .scale(100)
-    .translate([width / 2, height / 2])
+    .translate([width /2.5, height / 2])
     .precision(.1);
 
   path = d3.geoPath()  // create path generator function
@@ -230,8 +233,37 @@ function drawMap(world) {
         drawLine(currentLineData,filter);
       });
 
-
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
+
+    svg.append('rect').attr("x", width * 0.8)
+    .attr("y", height * 0.03)
+    .attr("width", 200)
+    .attr("height", height * 0.5)
+    .attr("class", function(d){ return "Legend_cases" } )
+    .attr("style", "outline: thin solid black")
+    .style("visibility", "visible")
+    .style("fill", "#878787")
+
+    for (var i = 0; i < 9; i++) {
+    svg.append('rect').attr("x", width * 0.97)
+    .attr("y", height * 0.01 * (i * 5) + (height * 0.085))
+    .attr("width", width * 0.02)
+    .attr("class", function(d){ return "Legend_cases" } )
+    .style("visibility", "visible")
+    .attr("height", height * 0.04)
+    .style("fill", colors[i])
+
+    svg.append('text').attr("x", width * 0.801)
+      .attr("y", height * 0.04 * (i*1.25) + (height * 0.118))
+      .attr("width", width * 0.03)
+      .attr("height", height * 0.05)
+      .attr("class", function(d){ return "Legend_cases" } )
+      .style("visibility", "visible")
+      .text(ranges[i])
+      .style("font-size", "14px")
+      .style("fill", "#ffffff")  
+    }
+
     d3.selectAll('.country')  // select all the countries
     .attr('fill-opacity',0.8)
     .attr('fill', function(d) {
