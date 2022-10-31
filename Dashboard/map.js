@@ -647,6 +647,7 @@ Line Graph
       currentLineData = deathsLines;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
+      LineSvg.selectAll("text").remove();
       drawMap(deathWorld);
       drawLine(currentLineData,"World","World")
     });
@@ -666,6 +667,7 @@ Line Graph
       currentLineData = newCasesLines;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
+      LineSvg.selectAll("text").remove();
       drawMap(newCaseWorld);
       drawLine(currentLineData,"World","World")
     });
@@ -682,6 +684,7 @@ Line Graph
       ranges = TotalCasesRange;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
+      LineSvg.selectAll("text").remove();
       drawMap(World);
       drawLine(totalCasesLines,"World","World")
     });
