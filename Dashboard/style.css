@@ -49,7 +49,7 @@
     display: inline-block;
 }
 #clock {
-    margin-top: 15px;
+    margin-top: 12px;
     left: 35px;
     left: 35px;
     color: #fff;
@@ -68,10 +68,7 @@ border-radius: 4px;
 -webkit-box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
 box-shadow:         3px 3px 10px 0px rgba(0, 0, 0, 0.25);
 }
-.header {
-    background-color: #888;
 
-  }
 .tooltip p {
 margin: 0;
 padding: 0;
