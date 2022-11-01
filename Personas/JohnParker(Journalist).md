@@ -3,7 +3,7 @@
 
 ### Activities:
 - John enjoys writing, golf, cooking, and spending time with his family
-- When john has spare time he stays away from computers since he works all week with them and has no alterior interests. When John does use technology it is always with a personal computer, as his phone is too slow and old to reliably be used for anything other than calls and texts.
+- When john has spare time he stays away from computers since he works all week with them and has no ulterior interests. When John does use technology it is always with a personal computer, as his phone is too slow and old to be used for anything other than calls and texts reliably.
 
 ### Aptitudes:
 - John has always found socialising quite easy and enjoys being around people. 
@@ -14,11 +14,11 @@
 - John is not good at anything mathematical and doesn't like to do any sums or calculations in his head
 
 ### Motivations:
-- John wants to use a COVID-19 information visualiser to quickly and easily see the trends in historial covid data in his country (Canada)
-- John would like to compare various statistics over mutiple countries and regions such that he can write his news articles
+- John wants to use a COVID-19 information visualiser to quickly and easily see the trends in historical covid data in his country (Canada)
+- John would like to compare various statistics over multiple countries and regions such that he can write his news articles
 
 ### Computer Self-Efficacy:
-- John has enough computer knowledge to be able to use microsoft office software and web browsers but not much more
+- John has enough computer knowledge to be able to use Microsoft office software and web browsers but not much more
 - He is able to install new software and manually look through data files and CSVs, however, it takes him a long time and he often struggles
 
 ### Information Processing Style:
