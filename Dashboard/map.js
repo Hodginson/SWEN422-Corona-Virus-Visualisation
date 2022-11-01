@@ -714,6 +714,7 @@ Line Graph
       lineText = "Total Cases: "
       colors = TotalCasesColour;
       ranges = TotalCasesRange;
+      currentLineData = totalCasesLines;
       LineSvg.selectAll("path").remove();
       LineSvg.selectAll("g").remove();
       LineSvg.selectAll("text").remove();
