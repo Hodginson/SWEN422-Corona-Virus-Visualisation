@@ -1,6 +1,8 @@
 /*
 Sources used to assist with code:
-
+Choropleth Map:
+http://bl.ocks.org/dougdowson/9832019
+http://bl.ocks.org/rgdonohue/9280446
 Line Chart help:
 https://d3-graph-gallery.com/graph/line_basic.html
 https://www.d3-graph-gallery.com/graph/line_cursor.html 
@@ -235,14 +237,14 @@ Map - Zane
 
 function drawMap(world) {
     
-    shapes = svg.selectAll(".country")   // select country objects (which don't exist yet)
+    shapes = svg.selectAll(".country")   
       .data(world.features)  // bind data to these non-existent objects
-      .enter().append("path") // prepare data to be appended to paths
-      .attr("class", "country") // give them a class for styling and access later
+      .enter().append("path") 
+      .attr("class", "country") // give the countries a class
       .attr("id", function(d) { 
-        return "code_" + d.properties.id; }, true)  // give each a unique id for access later
-      .attr("d", path) // create them using the svg path generator defined above
-      .on("mouseover", function(d) {
+        return "code_" + d.properties.id; }, true)  // give each a unique id 
+      .attr("d", path) // create the countries using the generator above
+      .on("mouseover", function(d) { //display a tooltip on mouse over that displays the ocuntry name and value
         d3.selectAll(".country")
             .transition()
               .duration(200)
@@ -260,14 +262,13 @@ function drawMap(world) {
         .style("top", (d3.event.pageY - 28) + "px")})
       .on("mouseleave", function(d) {
         var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
-        d3.selectAll('.country')  // select all the countries
+        d3.selectAll('.country')  
           .attr("fill-opacity", 1)
           .attr('fill', function(d) {
-            return getColor(d.properties[dateArray[currentDate]], dataRange);  // give them an opacity value based on their current value
+            return getColor(d.properties[dateArray[currentDate]], dataRange);  // retrieve the colour value
         });
 
         tooltip.transition()
-        //.duration(250)
         .style("opacity", 0);
       })
       .on("click", function(d){
@@ -280,7 +281,7 @@ function drawMap(world) {
             break;
           }
         };
-        // console.log(filter)
+        //Refresh the line graph
         LineSvg.selectAll("path").remove();
         LineSvg.selectAll("g").remove();
         LineSvg.selectAll("text").remove();
@@ -291,7 +292,7 @@ function drawMap(world) {
 
       });
 
-    var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
+    var dataRange = getDataRange();
 
     svg.append('rect').attr("x", mapWidth * 0.8)
     .attr("y", mapHeight * 0.005)
@@ -328,7 +329,7 @@ function drawMap(world) {
     d3.selectAll('.country')  // select all the countries
     .attr('fill-opacity',0.8)
     .attr('fill', function(d) {
-        return getColor(d.properties[dateArray[currentDate]], dataRange);  // give them an opacity value based on their current value
+        return getColor(d.properties[dateArray[currentDate]], dataRange);  
     });
 }
 
@@ -340,7 +341,6 @@ function sequenceMap() {
   
     var dataRange = getDataRange(); // get the min/max values from the current year's range of data values
     d3.selectAll('.country').transition()  //select all the countries and prepare for a transition to new values
-      .duration(750)  // give it a smooth time period for the transition
       .attr('fill', function(d) {
         return getColor(d.properties[dateArray[currentDate]], dataRange);  // the end color value
       })
@@ -385,7 +385,7 @@ function getDataRange() {
 
 function updateMap() {
   sequenceMap();  // update the representation of the map 
-  d3.select('#clock').html(dateArray[currentDate]);  // update the clock
+  d3.select('#clock').html(dateArray[currentDate]);  // update the date
 }
 
 window.onload = init();  
@@ -557,7 +557,6 @@ function barCases(barData, selectedCountry){
 Line Graph
 ##########################################*/
     function drawLine(data,filter,countryName) {
-      // console.log(filter)
       // Add X axis --> it is a date format
       var x = d3.scaleTime()
         .domain(d3.extent(data, function(d) { return d3.timeParse("%d/%m/%Y")(d.Date); }))
@@ -582,13 +581,13 @@ Line Graph
           .x(function(d) { return x(d3.timeParse("%d/%m/%Y")(d.Date)) })
           .y(function(d) { return y(d[filter]) })
         )  
-      LineSvg.append("text")
+      LineSvg.append("text") //Display the country name at the top middle of the chart to identify what is being shown
       .attr("x", lineWidth/2)
       .attr("y", lineHeight*0.1)
       .text(countryName) 
       .style("font-size", "30px")
         
-        var focus = LineSvg.append("g")
+        var focus = LineSvg.append("g") //on hover over highlight the date and where it sits on the chart
             .attr("class", "focus")
             .style("display", "none");
             
@@ -623,7 +622,7 @@ Line Graph
             .attr("x", 100)
             .attr("y", 18);
 
-        LineSvg.append("rect")
+        LineSvg.append("rect") //create an overlay for the mouseover
             .attr("class", "overlay")
             .attr("width", lineWidth)
             .attr("height", lineHeight)
@@ -658,7 +657,7 @@ Line Graph
     Buttons
     ##########################################*/
 
-    var deathButton = d3.select('#Deaths')  
+    var deathButton = d3.select('#Deaths')   //display deaths data and reset the graphs
     .on('click', function() {
       d3.select('#Deaths').style('background-color',"indianred");
       d3.select('#New').style('background-color',"rgb(109, 103, 103)");
@@ -682,7 +681,7 @@ Line Graph
 
 
 
-    var newCasesButton = d3.select('#New')  
+    var newCasesButton = d3.select('#New')   //display new cases data and reset the graphs
     .on('click', function() {
       d3.select('#New').style('background-color',"steelblue");
       d3.select('#Deaths').style('background-color',"rgb(109, 103, 103)");
@@ -704,7 +703,7 @@ Line Graph
       barCases(calcBarData(barBaseData, currentDate));
     });
 
-    var totalCasesButton = d3.select('#Total')  
+    var totalCasesButton = d3.select('#Total')   //display total cases data and reset the graphs
     .on('click', function() {
       d3.select('#Total').style('background-color',"green");
       d3.select('#Deaths').style('background-color',"rgb(109, 103, 103)");
