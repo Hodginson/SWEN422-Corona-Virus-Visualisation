@@ -648,7 +648,7 @@ Line Graph
               focus.attr("transform", "translate(" + x(d3.timeParse("%d/%m/%Y")(x0.Date)) + "," + y(x0[filter]) + ")");
 
               focus.select(".tooltip-date").text(xpos.toDateString());
-              focus.select(".tooltip-likes").text(Math.round(ypos).toLocaleString());
+              focus.select(".tooltip-likes").text(x0[filter]);
           });
     };
 
